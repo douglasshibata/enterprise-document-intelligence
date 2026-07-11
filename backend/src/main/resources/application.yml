@@ -1,0 +1,54 @@
+spring:
+  application:
+    name: document-intelligence
+  profiles:
+    active: local
+
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY:mock-key-for-local}
+      chat:
+        options:
+          model: gpt-4o
+          temperature: 0.3
+      embedding:
+        options:
+          model: text-embedding-3-small
+
+  elasticsearch:
+    uris: ${ELASTICSEARCH_URIS:http://localhost:9200}
+    username: ${ELASTICSEARCH_USER:elastic}
+    password: ${ELASTICSEARCH_PASS:changeme}
+    connection-timeout: 5000s
+    socket-timeout: 30000s
+
+camel:
+  springboot:
+    name: DocumentIntelligenceCamelContext
+  route:
+    file:
+      inbox-dir: ${INBOX_DIR:/tmp/docai/inbox}
+    kafka:
+      brokers: ${KAFKA_BROKERS:localhost:9092}
+      topic: documents-ingestion
+
+server:
+  port: ${PORT:8080}
+  shutdown: graceful
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+      probes:
+        enabled: true
+
+logging:
+  level:
+    root: INFO
+    com.enterprise.docai: DEBUG
+    org.apache.camel: INFO
